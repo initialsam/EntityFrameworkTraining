@@ -11,7 +11,7 @@ namespace EntityFrameworkTraining
     {
         static void Main(string[] args)
         {
-            UpdateData();
+            ReloadData();
             Console.ReadLine();
         }
         static void AddData()
@@ -35,6 +35,29 @@ namespace EntityFrameworkTraining
             item.Name = "ZZZ";
             context.SaveChanges();
         }
-      
+        static void ReloadData()
+        {
+            DataContext context1 = new DataContext();
+            DataContext context2 = new DataContext();
+            context1.Database.Log = (log) => Console.WriteLine($"context1 : {log}");
+            context2.Database.Log = (log) => Console.WriteLine($"context2 : {log}");
+
+            var item1 = context1.Customer.FirstOrDefault(a => a.ID == 1);
+            item1.Name = "edit by context1";
+            context1.SaveChanges();
+
+            var item2 = context2.Customer.FirstOrDefault(a => a.ID == 1);
+            item2.Name = "edit by context2";
+            context2.SaveChanges();
+
+            //還是edit by context1 因為EF會快取資料
+            var item3 = context1.Customer.FirstOrDefault(a => a.ID == 1);
+            Console.WriteLine($"item3 ID:{item3.ID}, NAME:{item3.Name}");
+
+            Console.WriteLine($"item1 ID:{item1.ID}, NAME:{item1.Name}");
+            //用Reload可以重新讀資料
+            context1.Entry(item1).Reload();
+            Console.WriteLine($"Reload item1 ID:{item1.ID}, NAME:{item1.Name}");
+        }
     }
 }
