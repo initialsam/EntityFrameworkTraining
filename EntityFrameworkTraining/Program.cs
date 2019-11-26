@@ -1,4 +1,6 @@
 ﻿using EntityFrameworkTraining.Entities;
+using EntityFrameworkTraining.Repository;
+using EntityFrameworkTraining.Repository.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,7 @@ namespace EntityFrameworkTraining
     {
         static void Main(string[] args)
         {
-            ReloadData();
+            test();
             Console.ReadLine();
         }
         static void AddData()
@@ -58,6 +60,22 @@ namespace EntityFrameworkTraining
             //用Reload可以重新讀資料
             context1.Entry(item1).Reload();
             Console.WriteLine($"Reload item1 ID:{item1.ID}, NAME:{item1.Name}");
+        }
+
+        static void test()
+        {
+            IUnitOfWork unitOfWork = new EFUnitOfWork();
+            IRepository<Customer> customerRepo = new Repository<Customer>(unitOfWork);
+
+            var entity = customerRepo.Create(new Customer()
+            {
+                Name = "SS"
+            });
+            customerRepo.Save();
+            entity.Name = "TT"+ entity.ID;
+            customerRepo.Update(entity);
+            customerRepo.Save();
+
         }
     }
 }

@@ -14,6 +14,6 @@ namespace EntityFrameworkTraining
             : base("name=DataContext")
         {
         }
-        public virtual DbSet<Customer> Customer { get; set; }
+        public virtual IDbSet<Customer> Customer { get; set; }
     }
 }
