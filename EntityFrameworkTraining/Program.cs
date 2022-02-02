@@ -3,6 +3,7 @@ using EntityFrameworkTraining.Repository;
 using EntityFrameworkTraining.Repository.Interface;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,5 +78,73 @@ namespace EntityFrameworkTraining
             customerRepo.Save();
 
         }
+
+        private static void QueryAndUpdateNinjaDisconnected()
+        {
+            Customer ninja;
+            using (var context = new DataContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                ninja = context.Customer.FirstOrDefault();
+            }
+
+            ninja.Name = (ninja.Name+"UUUUUUUUUUUU");
+
+            using (var context = new DataContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                context.Customer.Attach(ninja);
+                context.Entry(ninja).State = EntityState.Modified;
+                context.SaveChanges();
+            }
+        }
+
+        private static void RetrieveDataWithFind()
+        {
+            var keyval = 4;
+            using (var context = new DataContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                var ninja = context.Customer.Find(keyval);
+                Console.WriteLine("After Find#1:" + ninja.Name);
+
+                var someNinja = context.Customer.Find(keyval);
+                Console.WriteLine("After Find#2:" + someNinja.Name);
+                ninja = null;
+            }
+        }
+
+        private static void DeleteNinja()
+        {
+            Customer ninja;
+            using (var context = new DataContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                ninja = context.Customer.FirstOrDefault();
+                //context.Ninjas.Remove(ninja);
+                //context.SaveChanges();
+            }
+            using (var context = new DataContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                //context.Ninjas.Attach(ninja);
+                //context.Ninjas.Remove(ninja);
+                context.Entry(ninja).State = EntityState.Deleted;
+                context.SaveChanges();
+            }
+        }
+
+        private static void DeleteNinjaWithKeyValue()
+        {
+            var keyval = 1;
+            using (var context = new DataContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                var ninja = context.Customer.Find(keyval);
+                context.Customer.Remove(ninja);
+                context.SaveChanges();
+            }
+        }
+
     }
 }
