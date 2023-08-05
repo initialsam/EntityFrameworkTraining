@@ -1,8 +1,11 @@
-﻿namespace Core6;
+﻿using System.Text.Json.Serialization;
+
+namespace Core6;
 
 public class Product
 {
-    public int Id { get; set; }
+   
+    public ProductId Id { get; set; }
 
     public string Name { get; set; }
 

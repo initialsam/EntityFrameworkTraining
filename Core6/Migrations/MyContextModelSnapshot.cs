@@ -24,17 +24,13 @@ namespace Core6.Migrations
 
             modelBuilder.Entity("Core6.Product", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("Code")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Price")
@@ -42,7 +38,9 @@ namespace Core6.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Product");
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
+
+                    b.ToTable("Product", (string)null);
                 });
 #pragma warning restore 612, 618
         }
