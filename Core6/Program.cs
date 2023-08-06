@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Microsoft.VisualBasic;
+
+using System.Reflection;
 
 namespace Core6
 {
@@ -28,7 +31,7 @@ namespace Core6
                           {
                               context.HandleResponse();
                              
-                              return context.Response.WriteAsync(context.ErrorDescription);
+                              return context.Response.WriteAsync(context.ErrorDescription ?? "No Error Description");
                           }
 
                       };
@@ -36,7 +39,41 @@ namespace Core6
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                // Authorization
+                options.AddSecurityDefinition("Bearer",
+                new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization"
+                });
+
+                options.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                    });
+
+                // 讀取 XML 檔案產生 API 說明
+                //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                //options.IncludeXmlComments(xmlPath);
+            });
 
             SetupMsSql(builder);
             var app = builder.Build();

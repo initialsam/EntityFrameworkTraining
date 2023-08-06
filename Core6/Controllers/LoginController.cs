@@ -16,9 +16,9 @@ namespace Core6.Controllers
     {
         [AllowAnonymous]
         [HttpGet("Create")]
-        public IActionResult Create(string memberId)
+        public IActionResult Create(string memberId,string role)
         {
-            var jwt = CreateToken(memberId, 7);
+            var jwt = CreateToken(memberId, role, 7);
             return Ok(jwt);
         }
         [Authorize]
@@ -30,7 +30,27 @@ namespace Core6.Controllers
                 Claims = User.Claims.Select(p => new { p.Type, p.Value })
             });
         }
-        private string CreateToken(string memberId, int expireDays)
+        //[Authorize("Admin")]
+        [Authorize(Roles = "Admin")]
+        [HttpGet("TestAdmin")]
+        public IActionResult TestAdmin()
+        {
+            return Ok(new
+            {
+                Claims = User.Claims.Select(p => new { p.Type, p.Value })
+            });
+        }
+        //[Authorize(policy: "User")]
+        [Authorize(Roles = "User")]
+        [HttpGet("TestUser")]
+        public IActionResult TestUser()
+        {
+            return Ok(new
+            {
+                Claims = User.Claims.Select(p => new { p.Type, p.Value })
+            });
+        }
+        private string CreateToken(string memberId,string role, int expireDays)
         {
             var claims = new List<Claim>();
 
@@ -39,7 +59,7 @@ namespace Core6.Controllers
             claims.Add(new Claim(JwtRegisteredClaimNames.Sub, memberId));
             claims.Add(new Claim(JwtRegisteredClaimNames.Jti, jwtId));
             // 你可以自行擴充 "roles" 加入登入者該有的角色
-            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            claims.Add(new Claim(ClaimTypes.Role, role));
             //claims.Add(new Claim("roles", "Users"));
 
             // 建立 Jwt 參數
@@ -49,7 +69,7 @@ namespace Core6.Controllers
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Issuer = "TestApi",
-                //Expires = DateTime.Now.AddDays(expireDays),
+                Expires = DateTime.Now.AddDays(expireDays),
                 Subject = userClaimsIdentity,
                 SigningCredentials = signingCredentials
             };
